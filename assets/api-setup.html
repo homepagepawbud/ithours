@@ -1,0 +1,221 @@
+<!doctype html>
+<html ng-app="app">
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular-touch.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular-animate.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.7.0/angular-aria.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/csv.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/lodash.min.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/jszip.min.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/excel-builder.dist.js"></script>
+    <script src="http://ui-grid.info/release/ui-grid.js"></script>
+    <link rel="stylesheet" href="http://ui-grid.info/release/ui-grid.css" type="text/css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <script src="/ithours-client-base" api-url="/"></script>
+    <!-- <link rel="stylesheet" href="/release/ui-grid.css" type="text/css">
+    <script src="app.js"></script>  -->
+    <style>
+        .grid {
+            width: 1000px;
+            height: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div ng-controller="MainCtrl">
+        <div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                Launch demo modal
+            </button>
+        </div>
+       
+            <div id="grid1" ui-grid="gridOptions" class="grid">
+            </div>
+            <!-- Button trigger modal -->
+
+      
+        <!-- Modal -->
+        <div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row" style = "padding-bottom: 5px">
+                            <div class="col-md-3">
+                                Description:
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" placeholder="Description" ng-model="Description"><br />
+                            </div>
+                        </div>
+                        <div class="row" style = "padding-bottom: 5px">
+                            <div class="col-md-3">
+                                Operation:
+                            </div>
+                            <div class="col-md-9">
+                                <select ng-model="selectedOption" ng-init=" selectedOption = operations[1]" ng-options="item for item in operations"
+                                    ng-change="myFunc(selectedOption)"></select>
+                            </div>
+                        </div>
+                        <div class="row" style = "padding-bottom: 5px">
+                            <div class="col-md-3">
+                                Select Model
+                            </div>
+                            <div class="col-md-9">
+                                <select ng-model="countSelector" ng-init=" countSelector ='User'" ng-options = "item for item in models">
+                                    
+                                </select> <br />
+                            </div>
+                        </div>
+                        <div class="row" style = "padding-bottom: 5px">
+                            <div class="col-md-3" ng-show="findquery || updatequery">
+                                Find Query
+                            </div>
+                            <div class="col-md-9" ng-show="findquery || updatequery">
+                                <input type="text" placeholder="Find Query" ng-model="findQuery"><br />
+                            </div>
+                        </div>
+                        <div class="row" style = "padding-bottom: 5px">
+                            <div class="col-md-3" ng-show="updatequery">
+                                Update Query
+                            </div>
+                            <div class="col-md-9" ng-show="updatequery">
+                                <input type="text" placeholder=" Update Query" ng-model="updateQuery"><br />
+                            </div>
+                        </div>
+                        <div class="row" style = "padding-bottom: 5px">
+                            <div class="col-md-3" ng-show="Path || updatequery">
+                                Path
+                            </div>
+                            <div class="col-md-9" ng-show="Path || updatequery">
+                                <input type="text" placeholder="Path" ng-model="path"><br />
+                            </div>
+                        </div>
+                        <div class="row" style = "padding-bottom: 5px">
+                            <div class="col-md-3">
+                                Operator Id
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" placeholder=" Operator Id" ng-model="operator_id"><br />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" ng-click="addData()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        angular.module('app', ['ngTouch', 'ui.grid'])
+            .controller('MainCtrl', function ($scope) {
+                $scope.findQuery = null;
+                $scope.findquery = true,
+                    $scope.updatequery = false,
+                    $scope.Path = true,
+                    $scope.operations = ['ADD', 'GET', 'GETONE', 'DELETE', 'UPDATE'];
+
+                $scope.myFunc = function (selectedOption) {
+                    if (selectedOption == "ADD") {
+                        $scope.findquery = false,
+                            $scope.updatequery = false,
+                            $scope.Path = false
+                    }
+                    if (selectedOption == "GET" || selectedOption == "GETONE") {
+                        $scope.findquery = true,
+                            $scope.updatequery = false,
+                            $scope.Path = true
+                    }
+                    if (selectedOption == "UPDATE") {
+                        $scope.updatequery = true
+                    }
+                    if (selectedOption == "DELETE") {
+                        $scope.updatequery = false,
+                            $scope.Path = false
+                        $scope.findquery = true
+                    }
+                }
+                $scope.addData = function () {
+                    console.log($scope);
+                    ithours_client.add("API", {
+                        description: $scope.Description,
+                        operation: $scope.selectedOption,
+                        model_name: $scope.countSelector,
+                        find_query: $scope.findQuery,
+                        update_query: $scope.updateQuery,
+                        path: $scope.path,
+                        operator_id: $scope.operator_id
+                    })
+                    $('#exampleModal').modal('hide')
+                    window.location.reload();
+                }
+                $scope.RemoveAPI =function(row,col){
+                  var isconfirm = confirm ('Data will be removed')
+                if(isconfirm){
+                  ithours_client.delete("API",{id: row.entity._id}).then(function(res){
+                      console.log(res)
+                  })}
+                  window.location.reload()
+                },
+                $scope.gridOptions = {
+                    paginationPageSizes: [5, 10, 20],
+                    paginationPageSize: 10,
+                    enableFiltering: false,
+                    scrollable: true,
+                    // onRegisterApi: function (gridApi) {
+                    //     $scope.gridApi = gridApi;
+                    //     $scope.gridApi.grid.registerRowsProcessor($scope.singleFilter, 200);
+                    // },
+                    columnDefs: [
+                        { name: 'description' },
+                        { name: 'operation' },
+                        { name: 'model_name' },
+                        { name: 'find_query' },
+                        { name: 'update_query' },
+                        { name: 'path' },
+                        { name: 'operator_id' },
+                        // {
+                        //     name: " ", cellTemplate: '<div style="text-align:center;">' +
+                        //         '<a href="#/rides/{{row.entity.$id}}" >Rides</a>' +
+                        //         '</div>', enableFiltering: false
+                        // },
+                        {
+                            name: "    ", cellTemplate: '<div>' +
+                                '<div>   <div ng-click="grid.appScope.RemoveAPI(row,col)" class="ui-grid-cell-contents" title="TOOLTIP" style="text-align:center;">Remove</div> </div>',
+                            enableFiltering: false
+                        }
+                    ]
+                };
+                ithours_client.get("API").then(function (res) {
+                    $scope.gridOptions.data = res.apidata.Data
+                    $scope.$apply()
+                });
+                ithours_client.execute_by_url('get-models',{}).then(function(res){
+                    $scope.models = []
+                 for(var pro in res.apidata){
+                    $scope.models.push(res.apidata[pro])
+                 }
+                console.log( $scope.models)
+                })
+            });
+
+    </script>
+</body>
+
+</html>

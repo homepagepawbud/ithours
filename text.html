@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <!-- <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style> -->
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+        <input type="button" id="f" value="first User"/> <br/><br/>
+        <input type="button" id="s" value="second User"/><br/><br/>
+        <input type="file" id="readfile" >
+        <input type="button" id="d" value="Send Media Message"/><br/><br/>
+        <input type="button" id="creategrp" value="Create New Group"/><br/><br/>
+        <input type="button" id="addMember" value="Add New Member"/><br/><br/>
+        <input type="button" id="deleteMember" value="Delete Member"/><br/><br/>
+        <input type="button" id="deleteGroup" value="Delete Group"/><br/><br/>
+        <input type="text" id="msgtext" >
+        <input type="button" id="msgbtn" on-click="onclickofmethod('1')" value="Send message"/><br/><br/>
+
+    </form>
+        <!-- <script src="http://35.163.176.99:81/socket.io/socket.io.js"></script>    -->
+     <script src="http://localhost:8100/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    
+    <script>
+     
+     var groupId = "5c669040c29a223ed4e92380";
+      var userId = "-1";
+
+     $(function () {
+      
+     
+
+      $("#f").click(function(){
+        userId = "5c668a4618bdaf437cb7a274";
+        localStorage.setItem("USERID",userId )
+        socket.emit('connectUser', { UserId: userId });
+      });
+
+      $("#s").click(function(){
+        userId ="5c417480ca91dc0eec7c7977";
+        localStorage.setItem("USERID",userId )
+        socket.emit('connectUser', { UserId: userId });
+      });
+     
+   
+
+      $("#d").click(function(value){
+       var msg = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl2ibKfw9K6ntYDgzFx55xcEiOZSO7YBASCruP5R5ckNE2Sv5K";
+        socket.emit('mediaMessage', { GroupId: groupId, SenderId: localStorage.getItem("USERID"), MsgText: msg, ClientMessageId: -1, TaggedMessge: "defaultMessage", MediaType: 0, VideoImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSl2ibKfw9K6ntYDgzFx55xcEiOZSO7YBASCruP5R5ckNE2Sv5K" });
+      });
+
+
+       $("#msgbtn").click(function(){
+         
+         var msg = $("#msgtext").val();
+        socket.emit('textMessage', { GroupId: groupId, SenderId: localStorage.getItem("USERID"), MsgText: msg, ClientMessageId: "-1", isNotification: false });
+      });
+
+$("#creategrp").click(function(){
+         
+         var members =["5c668a4618bdaf437cb7a274","5c417480ca91dc0eec7c7977", '5c386820b26cf324b8d6d902'];
+        socket.emit('createGroup', { GroupName: "professionals gang", ProfileURLOfGroup:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ28Oh0cPaHHL2bGVU-vDd-9fIOE3ZGOQUXx-pj6XKoSDbpKYfa", SenderId: localStorage.getItem("USERID"),Members: members});
+      });
+
+$("#addMember").click(function(){
+         
+         var members =["5bd6b84495e9346be0ce5d48","5bd6b7e295e9346be0ce5d03"];
+        socket.emit('addMemberToGroup', { GroupId: groupId, SenderId: localStorage.getItem("USERID"), Members: members});
+      });
+
+$("#deleteMember").click(function(){
+         
+         var members =["5bd6b84495e9346be0ce5d48"];
+        socket.emit('deleteMemberFromGroup', { GroupId: groupId, SenderId: localStorage.getItem("USERID"), Members: members});
+      });
+
+$("#deleteGroup").click(function(){
+         socket.emit('deleteGroup', { GroupId: groupId, SenderId: localStorage.getItem("USERID")});
+      });
+
+
+    //    var socket = io("http://35.163.176.99:81");
+     var socket = io("http://localhost:8100");
+      socket.on('connect', function () {
+          console.log("connect callback");
+      });
+
+   
+    socket.on('onTextMessage', function (data) {
+         console.log(data);
+        socket.emit('readNotification', {GroupId: groupId, SenderId: localStorage.getItem("USERID")});  
+      });
+    
+    socket.on('onTyping', function (data) {
+         console.log(data);
+      });
+    socket.on('onStopTyping', function (data) {
+                console.log(data);
+                });
+    socket.on('onDeleteGroup', function (data) {
+                console.log(data);
+                });
+    
+      socket.on('onMediaMessage', function (data) {
+         console.log(data);
+      });
+
+
+  socket.on('BookingNotification', function (data) {
+         console.log(data);
+      });
+
+  socket.on('ondeliverNotification', function (data) {
+         console.log(data);
+      });
+
+       socket.on('onReadNotification', function (data) {
+         console.log(data);
+      });
+      socket.on('oncreateGroup', function (data) {
+         console.log(data);
+      });
+      socket.on('onaddMember', function (data) {
+         console.log(data);
+      });
+      socket.on('ondeleteMember', function (data) {
+         console.log(data);
+      });
+      
+      var aaa = $("#msgtext");
+      console.log('sadsadsa' + aaa);
+
+      $("#msgtext").keypress(function($event) {
+        if ($event.keyCode == 13) {
+            sendMessage(message)
+        }
+        else {
+          
+         updateTyping() ;
+        }
+       });
+
+      TYPING_TIMER_LENGTH = 700;
+      lastTypingTime = null;
+      function updateTyping() {
+        lastTypingTime = (new Date()).getTime();
+        socket.emit('typing', { GroupId: groupId, SenderId: localStorage.USERID });
+        setTimeout(function () {
+            var typingTimer = (new Date()).getTime();
+            var timeDiff = typingTimer - lastTypingTime;
+            if (timeDiff >= self.TYPING_TIMER_LENGTH) {
+              socket.emit('stopTyping', { GroupId: groupId, SenderId: localStorage.getItem("USERID") });
+            }
+        }, TYPING_TIMER_LENGTH)
+    }
+   
+    });
+   </script>
+  </body>
+</html>
