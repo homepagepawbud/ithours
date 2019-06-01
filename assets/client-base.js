@@ -125,7 +125,7 @@
                 Data: data
             };
             return new Promise(function (resolve, reject) {
-                this.finalAPICall(toSend, base_url + "api/shared", function (apiresponse) {
+                this.finalAPICall(toSend, "api/shared", function (apiresponse) {
                     if (apiresponse)
                         resolve({ isapisuccess: true, apidata: apiresponse });
                     else
